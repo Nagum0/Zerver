@@ -1,0 +1,8 @@
+*.dll
+*.bin
+*.v2
+*.xml
+*.pdb
+*.cache
+*.props
+*.targets
