@@ -42,8 +42,16 @@ namespace SimpleHTTPServer {
             string requestBody = await ReadMessageAsync(request);
             Task response;
 
-            if (request.HttpMethod == "GET" && request.Url?.ToString() == "http://localhost:5000/")
+            if (request.HttpMethod == "GET" && request.Url?.AbsolutePath == "/")
                 response = HandleResponse(context, await ReadHtmlFile("frontend/index.html"), "text/html", HttpStatusCode.OK);
+            else if (request.HttpMethod == "GET" && request.Url?.AbsolutePath == "/style.css")
+                response = HandleResponse(context, await ReadHtmlFile("frontend/style.css"), "text/css", HttpStatusCode.OK);
+            else if (request.HttpMethod == "GET" && request.Url?.AbsolutePath == "/index.js")
+                response = HandleResponse(context, await ReadHtmlFile("frontend/index.js"), "text/javascript", HttpStatusCode.OK);
+            else if (request.HttpMethod == "GET" && request.Url?.AbsolutePath == "/imgs/rei9.jpg")
+                response = HandleResponse(context, await ReadImageFile("frontend/imgs/rei9.jpg"), "image/jpeg", HttpStatusCode.OK);
+            else if (request.HttpMethod == "GET" && request.Url?.AbsolutePath == "/imgs/fur6.jpg")
+                response = HandleResponse(context, await ReadImageFile("frontend/imgs/fur6.jpg"), "image/jpeg", HttpStatusCode.OK);
             else
                 response = HandleResponse(context, "Hello, from server!");
 
@@ -52,6 +60,16 @@ namespace SimpleHTTPServer {
             await response;
 
             Console.WriteLine("\n-------------------------------------\n");
+        }
+
+        private async Task HandleResponse(HttpListenerContext context, byte[] content, string contentType = "image/jpeg", HttpStatusCode statusCode = HttpStatusCode.OK) {
+            HttpListenerResponse response = context.Response;
+            response.ContentType = contentType;
+            response.ContentLength64 = content.Length;
+            response.StatusCode = (int) statusCode;
+            response.Headers.Add("Cache-Control", "no-cache");
+            
+            await response.OutputStream.WriteAsync(content, 0, content.Length);
         }
 
         private async Task HandleResponse(HttpListenerContext context, string content, string contentType = "text/plain", HttpStatusCode statusCode = HttpStatusCode.OK) {
@@ -65,7 +83,7 @@ namespace SimpleHTTPServer {
             await output.WriteAsync(buffer, 0, buffer.Length);
             output.Close();
         }
-        
+
         private async Task HandleResponse(HttpListenerContext context, string message) {
             HttpListenerResponse response = context.Response;
             byte[] buffer = System.Text.Encoding.UTF8.GetBytes(message);
@@ -74,6 +92,10 @@ namespace SimpleHTTPServer {
             Stream output = response.OutputStream;
             await output.WriteAsync(buffer, 0, buffer.Length);
             output.Close(); 
+        }
+
+        private Task<byte[]> ReadImageFile(string filePath) {
+            return File.ReadAllBytesAsync(filePath);
         }
 
         private Task<string> ReadHtmlFile(string filePath) {

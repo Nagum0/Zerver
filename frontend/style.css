@@ -1,4 +1,28 @@
 * {
     margin: 0;
     padding: 0;
+    background-color: rgb(65, 60, 110);
+}
+
+img {
+    width: 20%;
+    height: auto;
+}
+
+.container {
+    text-align: center;
+    margin-top: 300px;
+}
+
+button {
+    padding: 5px 10px;
+    background-color: aliceblue;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
 }

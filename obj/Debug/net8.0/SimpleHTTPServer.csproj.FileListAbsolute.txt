@@ -26,3 +26,4 @@
 /home/zack/Prog/Porn/NetworkStuff/SimpleHTTPServer/obj/Debug/net8.0/SimpleHTTPServer.pdb
 /home/zack/Prog/Porn/NetworkStuff/SimpleHTTPServer/obj/Debug/net8.0/SimpleHTTPServer.genruntimeconfig.cache
 /home/zack/Prog/Porn/NetworkStuff/SimpleHTTPServer/obj/Debug/net8.0/ref/SimpleHTTPServer.dll
+/home/zack/Prog/Porn/NetworkStuff/SimpleHTTPServer/obj/Debug/net8.0/SimpleHTTPServer.sourcelink.json
