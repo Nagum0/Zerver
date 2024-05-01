@@ -58,7 +58,7 @@ public class AsyncServer {
 
         // Printing request information:
         Console.WriteLine($"Request received; Request count: {requestCount}");
-        Console.WriteLine($"Request URL: {req.Url}\nRequest body: {reqBody}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}\n");
+        Console.WriteLine($"Request URL: {req.Url}\nURL Absoulte Path: {req.Url?.AbsolutePath}\nRequest body: {reqBody}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}\n");
         
         // Sending response:
         string htmlPath = "";
@@ -70,6 +70,8 @@ public class AsyncServer {
                 break;
             }
         }
+
+        
 
         if (htmlPath == "") {
             htmlPath = "/404.html";
