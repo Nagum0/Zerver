@@ -1,11 +1,13 @@
-﻿namespace SimpleHTTPServer;
+﻿using System.Net;
+
+namespace SimpleHTTPServer;
 
 public class Route {
     private string path;
     private string httpMethod;
-    private Action onRoute;
+    private Func<HttpListenerRequest, HttpListenerResponse, Task> onRoute;
 
-    public Route(string path, string httpMethod, Action onRoute) {
+    public Route(string path, string httpMethod, Func<HttpListenerRequest, HttpListenerResponse, Task> onRoute) {
         this.path = path;
         this.httpMethod = httpMethod;
         this.onRoute = onRoute;
@@ -19,7 +21,7 @@ public class Route {
         get => httpMethod;
     }
 
-    public Action OnRoute {
+    public Func<HttpListenerRequest, HttpListenerResponse, Task> OnRoute {
         get => onRoute;
     }
 }
