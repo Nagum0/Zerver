@@ -6,15 +6,13 @@ namespace SimpleHTTPServer {
             string prefix = "http://localhost:5000/";
             AsyncServer server = new AsyncServer(prefix);
             
+            server.routes.Add(new Route("/rei", "GET"));
+            
             /*
                 server.Route("/reviews", Method.GET, "");
             */
 
             await server.StartServerAsync();
-
-            /* string[] prefixes = { "http://localhost:5000/", "http://localhost:8080/", "http://localhost:5000/idk/" };
-            AsyncServerOLD asyncServer = new AsyncServerOLD(prefixes);
-            await asyncServer.StartServerAsync(); */
         }
     }
 }

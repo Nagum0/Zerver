@@ -51,15 +51,24 @@ public class AsyncServer {
 
         // Printing request information:
         Console.WriteLine($"Request received; Request count: {requestCount}");
-        Console.WriteLine($"Request URL: {req.Url}\nRequest body: {reqBody}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}");
-        Console.WriteLine("\n----------------------------------------------------------\n");
+        Console.WriteLine($"Request URL: {req.Url}\nRequest body: {reqBody}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}\n");
         
         // Sending response:
-        /* foreach (Route route in routes) {
-            
-        } */
+        string htmlPath = "";
 
-        byte[] resContent = await ParseTextFileToBytesAsync("frontend/index.html");
+        foreach (Route route in routes) {
+            if (route.Path == req.Url?.AbsolutePath && route.HttpMethod == req.HttpMethod) {
+                htmlPath = string.Concat(route.Path, ".html");
+                break;
+            }
+        }
+
+        htmlPath = htmlPath == "" ? "/index.html" : htmlPath;
+
+        Console.WriteLine($"Sent page: frontend/pages{htmlPath}");
+        byte[] resContent = await ParseTextFileToBytesAsync($"frontend/pages{htmlPath}");
+        Console.WriteLine("\n----------------------------------------------------------\n");
+
         await HandleResponse(context, resContent, "text/html");
     }
 
