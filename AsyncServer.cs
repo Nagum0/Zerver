@@ -87,47 +87,26 @@ public class AsyncServer {
 
         string reqBody = await ReadRequestBodyAsync(req);
 
+        Console.WriteLine("\n----------------------------------------------------------\n");
         Console.WriteLine($"Request received; Request count: {requestCount}");
-        Console.WriteLine($"Request URL: {req.Url}\nURL Absoulte Path: {req.Url?.AbsolutePath}\nRequest body: {reqBody}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}\n");
+        Console.WriteLine($"Request URL: {req.Url}\nURL Absoulte Path: {req.Url?.AbsolutePath}\nRequest body: {reqBody}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}");
 
         // Sending response:
         string requestAbsoultePath = req.Url?.AbsolutePath ?? "/";
-        string responseFilePath = "";
-        string responseContentType = "text/html";
-        HttpStatusCode statusCode = HttpStatusCode.OK;
+        string requestHttpMethod = req.HttpMethod;
+        bool routeLoaded = false;
 
         // Searching for the route:
         foreach (Route route in routes) {
-            if (route.Path == requestAbsoultePath && route.HttpMethod == req.HttpMethod) {
+            if (route.Path == requestAbsoultePath && route.HttpMethod == requestHttpMethod) {
                 await route.OnRoute(req, res);
+                routeLoaded = true;
                 break;
             }
         }
 
-        // Loading static files:
-        if (responseFilePath == "" && requestAbsoultePath.StartsWith("/static/css/") && req.HttpMethod == "GET") {
-            responseFilePath = string.Concat("frontend", requestAbsoultePath);
-            responseContentType = "text/css";
-        }
-        else if (responseFilePath == "" && requestAbsoultePath.StartsWith("/static/js/") && req.HttpMethod == "GET") {
-            responseFilePath = string.Concat("frontend", requestAbsoultePath);
-            responseContentType = "text/javascript";
-        }
-        else if (responseFilePath == "" && requestAbsoultePath.StartsWith("/static/imgs/") && req.HttpMethod == "GET") {
-            responseFilePath = string.Concat("frontend", requestAbsoultePath);
-            responseContentType = "image/jpeg";
-        }
-
-        if (responseFilePath == "") {
-            Console.WriteLine("Route not found...");
-            responseFilePath = "frontend/pages/404.html";
-            statusCode = HttpStatusCode.NotFound;
-        }
-
-        Console.WriteLine($"Sent page: {responseFilePath}");
-        Console.WriteLine("\n----------------------------------------------------------\n");
-
-        await HandleResponse(res, await ParseFileToBytesAsync(responseFilePath), responseContentType, statusCode);
+        if (!routeLoaded)
+            await LoadStaticContent(res, requestAbsoultePath, requestHttpMethod);
     }
 
     /*
@@ -144,6 +123,41 @@ public class AsyncServer {
         res.ContentLength64 = content.Length;
         await res.OutputStream.WriteAsync(content, 0, content.Length);
         res.OutputStream.Close();
+    }
+
+    /*
+        Loads any requested static content like css, js and image files.
+
+        @param res Response object.
+        @param requestAbsoultePath The absolute path of the request.
+        @param requestHttpMethod The request's http method.
+    */
+    private static async Task LoadStaticContent(HttpListenerResponse res, string requestAbsoultePath, string requestHttpMethod) {
+        string responseFilePath = "";
+        string responseContentType = "text/plain";
+
+        if (requestAbsoultePath.StartsWith("/static/css/") && requestHttpMethod == "GET") {
+            responseFilePath = string.Concat("frontend", requestAbsoultePath);
+            responseContentType = "text/css";
+        }
+        else if (requestAbsoultePath.StartsWith("/static/js/") && requestHttpMethod == "GET") {
+            responseFilePath = string.Concat("frontend", requestAbsoultePath);
+            responseContentType = "text/javascript";
+        }
+        else if (requestAbsoultePath.StartsWith("/static/imgs/") && requestHttpMethod == "GET") {
+            responseFilePath = string.Concat("frontend", requestAbsoultePath);
+            responseContentType = "image/jpeg";
+        }
+
+        Console.WriteLine($"\nStatic content file path: {responseFilePath}");
+
+        try {
+            await HandleResponse(res, await ParseFileToBytesAsync(responseFilePath), responseContentType, HttpStatusCode.OK);
+        }
+        catch {
+            Console.WriteLine("Content not found!");
+            await HandleResponse(res, ParseContentToBytes("404 content not found..."), "text/plain", HttpStatusCode.NotFound);
+        }
     }
 
     /*

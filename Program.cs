@@ -11,7 +11,7 @@ namespace SimpleHTTPServer {
             });
 
             server.Route("/fur", "GET", async (HttpListenerRequest req, HttpListenerResponse res) => {
-                await server.RenderPage(req, res, "fa.html");
+                await server.RenderPage(req, res, "fur.html");
             });
 
             await server.StartServerAsync();
