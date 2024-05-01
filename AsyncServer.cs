@@ -55,6 +55,10 @@ public class AsyncServer {
         Console.WriteLine("\n----------------------------------------------------------\n");
         
         // Sending response:
+        /* foreach (Route route in routes) {
+            
+        } */
+
         byte[] resContent = await ParseTextFileToBytesAsync("frontend/index.html");
         await HandleResponse(context, resContent, "text/html");
     }
