@@ -56,7 +56,6 @@ public class AsyncServer {
         HttpListenerRequest req = context.Request;
         string reqBody = await ReadRequestBodyAsync(req);
 
-        // Printing request information:
         Console.WriteLine($"Request received; Request count: {requestCount}");
         Console.WriteLine($"Request URL: {req.Url}\nURL Absoulte Path: {req.Url?.AbsolutePath}\nRequest body: {reqBody}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}\n");
         
@@ -64,14 +63,13 @@ public class AsyncServer {
         string htmlPath = "";
         HttpStatusCode statusCode = HttpStatusCode.OK;
 
+        // Searching for the route:
         foreach (Route route in routes) {
             if (route.Path == req.Url?.AbsolutePath && route.HttpMethod == req.HttpMethod) {
                 htmlPath = string.Concat(route.Path, ".html");
                 break;
             }
         }
-
-        
 
         if (htmlPath == "") {
             htmlPath = "/404.html";
