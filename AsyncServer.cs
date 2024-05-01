@@ -18,7 +18,7 @@ public class AsyncServer {
     }
 
     /*
-        Starts the AsyncServer.
+        Starts the server.
     */
     public async Task StartServerAsync() {
         HttpListener listener = new HttpListener();
@@ -40,13 +40,23 @@ public class AsyncServer {
         }
     }
 
-    private async Task ProcessRequestAsync(HttpListenerContext context) {
-        Console.WriteLine("Request received!");
+    /*
+        Upon receiving a request we print out the request information and body. Then we send a response.
 
+        @param context The receieved request.
+    */
+    private async Task ProcessRequestAsync(HttpListenerContext context) {
         HttpListenerRequest req = context.Request;
-        string reqMsg = await ReadRequestMessageAsync(req);
-        byte[] resContent = ParseContentToBytes("Hello, from Hatsune Miku ;)");
-        await HandleResponse(context, resContent);
+        string reqBody = await ReadRequestBodyAsync(req);
+
+        // Printing request information:
+        Console.WriteLine($"Request received; Request count: {requestCount}");
+        Console.WriteLine($"Request URL: {req.Url}\nRequest body: {reqBody}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}");
+        Console.WriteLine("\n----------------------------------------------------------\n");
+        
+        // Sending response:
+        byte[] resContent = await ParseTextFileToBytesAsync("frontend/index.html");
+        await HandleResponse(context, resContent, "text/html");
     }
 
     /*
@@ -57,7 +67,7 @@ public class AsyncServer {
         @param contentType A string representing the contentType.
         @param statusCode The response status code.
     */
-    private async Task HandleResponse(HttpListenerContext context, byte[] content, string contentType = "text/plain", HttpStatusCode statusCode = HttpStatusCode.OK) {
+    private static async Task HandleResponse(HttpListenerContext context, byte[] content, string contentType = "text/plain", HttpStatusCode statusCode = HttpStatusCode.OK) {
         HttpListenerResponse res = context.Response;
         res.ContentType = contentType;
         res.StatusCode = (int) statusCode;
@@ -66,7 +76,23 @@ public class AsyncServer {
         res.OutputStream.Close();
     }
 
-    private byte[] ParseContentToBytes(string content) {
+    /*
+        Parses a text file to bytes asynchronously.
+
+        @param filePath The path to the file.
+        @return A Task of byte array.
+    */
+    private static async Task<byte[]> ParseTextFileToBytesAsync(string filePath) {
+        return await File.ReadAllBytesAsync(filePath);
+    }
+
+    /*
+        Parses the received string content into a byte array.
+
+        @param content String that holds the contents.
+        @return A UTF8 encoded byte array.
+    */
+    private static byte[] ParseContentToBytes(string content) {
         return System.Text.Encoding.UTF8.GetBytes(content);
     }
 
@@ -76,7 +102,7 @@ public class AsyncServer {
         @param req The received request.
         @return The body of the request as a string.
     */
-    private async Task<string> ReadRequestMessageAsync(HttpListenerRequest req) {
+    private static async Task<string> ReadRequestBodyAsync(HttpListenerRequest req) {
         using (Stream body = req.InputStream) {
             using (StreamReader reader = new StreamReader(body, req.ContentEncoding)) {
                 return await reader.ReadToEndAsync();
