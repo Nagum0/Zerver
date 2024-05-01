@@ -58,30 +58,41 @@ public class AsyncServer {
 
         Console.WriteLine($"Request received; Request count: {requestCount}");
         Console.WriteLine($"Request URL: {req.Url}\nURL Absoulte Path: {req.Url?.AbsolutePath}\nRequest body: {reqBody}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}\n");
-        
+
         // Sending response:
-        string htmlPath = "";
+        string requestAbsoultePath = req.Url?.AbsolutePath ?? "/";
+        string responseFilePath = "";
+        string responseContentType = "text/html";
         HttpStatusCode statusCode = HttpStatusCode.OK;
 
         // Searching for the route:
         foreach (Route route in routes) {
-            if (route.Path == req.Url?.AbsolutePath && route.HttpMethod == req.HttpMethod) {
-                htmlPath = string.Concat(route.Path, ".html");
+            if (route.Path == requestAbsoultePath && route.HttpMethod == req.HttpMethod) {
+                responseFilePath = string.Concat("frontend/pages", requestAbsoultePath, ".html");
                 break;
             }
         }
 
-        if (htmlPath == "") {
-            htmlPath = "/404.html";
+        // If we don't find a route first we search for static files:
+        if (responseFilePath == "" && requestAbsoultePath.StartsWith("/static/css/") && req.HttpMethod == "GET") {
+            responseFilePath = string.Concat("frontend/", requestAbsoultePath);
+            responseContentType = "text/css";
+        }
+        else if (responseFilePath == "" && requestAbsoultePath.StartsWith("/static/js/") && req.HttpMethod == "GET") {
+            responseFilePath = string.Concat("frontend/", requestAbsoultePath);
+            responseContentType = "text/javascript";
+        }
+
+        if (responseFilePath == "") {
+            Console.WriteLine("Route not found...");
+            responseFilePath = "frontend/pages/404.html";
             statusCode = HttpStatusCode.NotFound;
         }
 
-        Console.WriteLine($"Sent page: frontend/pages{htmlPath}");
-        byte[] resContent = await ParseTextFileToBytesAsync($"frontend/pages{htmlPath}");
-
+        Console.WriteLine($"Sent page: {responseFilePath}");
         Console.WriteLine("\n----------------------------------------------------------\n");
 
-        await HandleResponse(context, resContent, "text/html", statusCode);
+        await HandleResponse(context, await ParseTextFileToBytesAsync(responseFilePath), responseContentType, statusCode);
     }
 
     /*
