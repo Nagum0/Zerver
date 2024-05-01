@@ -5,17 +5,24 @@ namespace SimpleHTTPServer;
 public class AsyncServer {
     private string prefix;
     private int requestCount;
-    public List<Route> routes;
+    private HashSet<Route> routes;
     
     public AsyncServer(string prefix) {
         this.prefix = prefix;
         requestCount = 0;
-        routes = new List<Route>();
+        routes = new HashSet<Route>();
     }
 
     public string Prefix {
         get => prefix;
     }
+
+    /* 
+        Adds a new route.
+
+        @param route
+    */
+    public void Route(string path, string httpMethod) => routes.Add(new Route(path, httpMethod));
 
     /*
         Starts the server.
@@ -55,6 +62,7 @@ public class AsyncServer {
         
         // Sending response:
         string htmlPath = "";
+        HttpStatusCode statusCode = HttpStatusCode.OK;
 
         foreach (Route route in routes) {
             if (route.Path == req.Url?.AbsolutePath && route.HttpMethod == req.HttpMethod) {
@@ -63,13 +71,17 @@ public class AsyncServer {
             }
         }
 
-        htmlPath = htmlPath == "" ? "/index.html" : htmlPath;
+        if (htmlPath == "") {
+            htmlPath = "/404.html";
+            statusCode = HttpStatusCode.NotFound;
+        }
 
         Console.WriteLine($"Sent page: frontend/pages{htmlPath}");
         byte[] resContent = await ParseTextFileToBytesAsync($"frontend/pages{htmlPath}");
+
         Console.WriteLine("\n----------------------------------------------------------\n");
 
-        await HandleResponse(context, resContent, "text/html");
+        await HandleResponse(context, resContent, "text/html", statusCode);
     }
 
     /*
