@@ -22,7 +22,7 @@ public class AsyncServer {
 
         @param route
     */
-    public void Route(string path, string httpMethod) => routes.Add(new Route(path, httpMethod));
+    public void Route(string path, string httpMethod, Action onRoute) => routes.Add(new Route(path, httpMethod, onRoute));
 
     /*
         Starts the server.
@@ -69,18 +69,23 @@ public class AsyncServer {
         foreach (Route route in routes) {
             if (route.Path == requestAbsoultePath && route.HttpMethod == req.HttpMethod) {
                 responseFilePath = string.Concat("frontend/pages", requestAbsoultePath, ".html");
+                route.OnRoute();
                 break;
             }
         }
 
         // If we don't find a route first we search for static files:
         if (responseFilePath == "" && requestAbsoultePath.StartsWith("/static/css/") && req.HttpMethod == "GET") {
-            responseFilePath = string.Concat("frontend/", requestAbsoultePath);
+            responseFilePath = string.Concat("frontend", requestAbsoultePath);
             responseContentType = "text/css";
         }
         else if (responseFilePath == "" && requestAbsoultePath.StartsWith("/static/js/") && req.HttpMethod == "GET") {
-            responseFilePath = string.Concat("frontend/", requestAbsoultePath);
+            responseFilePath = string.Concat("frontend", requestAbsoultePath);
             responseContentType = "text/javascript";
+        }
+        else if (responseFilePath == "" && requestAbsoultePath.StartsWith("/static/imgs/") && req.HttpMethod == "GET") {
+            responseFilePath = string.Concat("frontend", requestAbsoultePath);
+            responseContentType = "image/jpeg";
         }
 
         if (responseFilePath == "") {
@@ -110,6 +115,16 @@ public class AsyncServer {
         res.ContentLength64 = content.Length;
         await res.OutputStream.WriteAsync(content, 0, content.Length);
         res.OutputStream.Close();
+    }
+
+    /*
+        Parses an image to bytes asynchronously.
+
+        @param imgPath The path to the image.
+        @return A Task of byte array.
+    */
+    private static async Task<byte[]> ParseImageToBytesAsync(string imgPath) {
+        return await File.ReadAllBytesAsync(imgPath);
     }
 
     /*
