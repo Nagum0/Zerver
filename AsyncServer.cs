@@ -123,7 +123,7 @@ public class AsyncServer {
                 break;
             }
         }
-
+        
         // If no route was loaded, try loading static files:
         if (!routeLoaded) {
             await LoadStaticContent(res, requestAbsoultePath, requestHttpMethod);
