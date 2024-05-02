@@ -5,9 +5,9 @@ namespace SimpleHTTPServer;
 public class Route {
     private string path;
     private string httpMethod;
-    private Func<HttpListenerRequest, HttpListenerResponse, Task> onRoute;
+    private Func<Request, Response, Task> onRoute;
 
-    public Route(string path, string httpMethod, Func<HttpListenerRequest, HttpListenerResponse, Task> onRoute) {
+    public Route(string path, string httpMethod, Func<Request, Response, Task> onRoute) {
         this.path = path;
         this.httpMethod = httpMethod;
         this.onRoute = onRoute;
@@ -21,7 +21,7 @@ public class Route {
         get => httpMethod;
     }
 
-    public Func<HttpListenerRequest, HttpListenerResponse, Task> OnRoute {
+    public Func<Request, Response, Task> OnRoute {
         get => onRoute;
     }
 }

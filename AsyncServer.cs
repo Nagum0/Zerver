@@ -6,12 +6,6 @@ public class AsyncServer {
     private string prefix;
     private int requestCount;
     private HashSet<Route> routes;
-    
-    /* 
-        ******************************************************************************************************************************** 
-                                                                PUBLIC
-        ********************************************************************************************************************************
-    */
 
     public AsyncServer(string prefix) {
         this.prefix = prefix;
@@ -28,45 +22,7 @@ public class AsyncServer {
 
         @param route
     */
-    public void Route(string path, string httpMethod, Func<HttpListenerRequest, HttpListenerResponse, Task> onRoute) => routes.Add(new Route(path, httpMethod, onRoute));
-
-    /* 
-        When called it will render an html page loading all the required assets for it too, such as static css and js files.
-
-        @param req The HttpListenerRequest to get the request info.
-        @param res The HttpListenerResponse to get the response info.
-        @param pagePath The path to the page to be loaded.
-    */
-    public async Task RenderPage(HttpListenerRequest req, HttpListenerResponse res, string pagePath) {
-        try {
-            await HandleResponse(res, await ParseFileToBytesAsync(string.Concat("frontend/pages/", pagePath)), "text/html");
-        }
-        catch (FileNotFoundException) {
-            Console.WriteLine("File for sepcified page not found!");
-            await HandleResponse(res, await ParseFileToBytesAsync("frontend/pages/404.html"), "text/html");
-        }
-    }
-
-    /* 
-        When called will read the request body and return is as a string.
-
-        @param req The http request object.
-        @return A Task<string> of the read request body.
-    */
-    public async Task<string> GetRequestBody(HttpListenerRequest req) {
-        return await ReadRequestBodyAsync(req);
-    }
-
-
-    /* 
-        Sends a string as a response.
-
-        @param res Response object.
-        @param data Response string to be sent.
-    */
-    public async Task Send(HttpListenerResponse res, string data) {
-        await HandleResponse(res, await ParseContentToBytes(data));
-    }
+    public void Route(string path, string httpMethod, Func<Request, Response, Task> onRoute) => routes.Add(new Route(path, httpMethod, onRoute));
 
     /*
         Starts the server.
@@ -91,11 +47,41 @@ public class AsyncServer {
         }
     }
 
-    /* 
-        ******************************************************************************************************************************** 
-                                                                PRIVATE
-        ********************************************************************************************************************************
+    /*
+        Creates the response object. Sets the response headers. Then writes the response content to the output stream.
+
+        @param res The HttpListenerResponse object.
+        @param content A byte array containing the response body.
+        @param contentType A string representing the contentType.
+        @param statusCode The response status code.
     */
+    internal static async Task HandleResponse(HttpListenerResponse res, byte[] content, string contentType = "text/plain", HttpStatusCode statusCode = HttpStatusCode.OK) {
+        res.ContentType = contentType;
+        res.StatusCode = (int) statusCode;
+        res.ContentLength64 = content.Length;
+        await res.OutputStream.WriteAsync(content, 0, content.Length);
+        res.OutputStream.Close();
+    }
+
+    /*
+        Parses a text file to bytes asynchronously.
+
+        @param filePath The path to the file.
+        @return A Task of byte array.
+    */
+    internal static async Task<byte[]> ParseFileToBytesAsync(string filePath) {
+        return await File.ReadAllBytesAsync(filePath);
+    }
+
+    /*
+        Parses the received string content into a byte array.
+
+        @param content String that holds the contents.
+        @return A UTF8 encoded byte array.
+    */
+    internal static async Task<byte[]> ParseContentToBytes(string content) {
+        return await Task.Run(() => System.Text.Encoding.UTF8.GetBytes(content));
+    }
 
     /*
         Upon receiving a request we print out the request information and body. Then we send a response.
@@ -118,7 +104,7 @@ public class AsyncServer {
         // Searching for the route:
         foreach (Route route in routes) {
             if (route.Path == requestAbsoultePath && route.HttpMethod == requestHttpMethod) {
-                await route.OnRoute(req, res);
+                await route.OnRoute(new Request(req), new Response(res));
                 routeLoaded = true;
                 break;
             }
@@ -135,22 +121,6 @@ public class AsyncServer {
         if (res.OutputStream.CanWrite) {
             await HandleResponse(res, await ParseContentToBytes("Base case response..."));
         }
-    }
-
-    /*
-        Creates the response object. Sets the response headers. Then writes the response content to the output stream.
-
-        @param context The HttpListenerContext object (the received request).
-        @param content A byte array containing the response body.
-        @param contentType A string representing the contentType.
-        @param statusCode The response status code.
-    */
-    private static async Task HandleResponse(HttpListenerResponse res, byte[] content, string contentType = "text/plain", HttpStatusCode statusCode = HttpStatusCode.OK) {
-        res.ContentType = contentType;
-        res.StatusCode = (int) statusCode;
-        res.ContentLength64 = content.Length;
-        await res.OutputStream.WriteAsync(content, 0, content.Length);
-        res.OutputStream.Close();
     }
 
     /*
@@ -186,26 +156,6 @@ public class AsyncServer {
             Console.WriteLine("Content not found!");
             await HandleResponse(res, await ParseContentToBytes("404 content not found..."), "text/plain", HttpStatusCode.NotFound);
         }
-    }
-
-    /*
-        Parses a text file to bytes asynchronously.
-
-        @param filePath The path to the file.
-        @return A Task of byte array.
-    */
-    private static async Task<byte[]> ParseFileToBytesAsync(string filePath) {
-        return await File.ReadAllBytesAsync(filePath);
-    }
-
-    /*
-        Parses the received string content into a byte array.
-
-        @param content String that holds the contents.
-        @return A UTF8 encoded byte array.
-    */
-    private static async Task<byte[]> ParseContentToBytes(string content) {
-        return await Task.Run(() => System.Text.Encoding.UTF8.GetBytes(content));
     }
 
     /* 
