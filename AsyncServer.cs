@@ -47,6 +47,27 @@ public class AsyncServer {
         }
     }
 
+    /* 
+        When called will read the request body and return is as a string.
+
+        @param req The http request object.
+        @return A Task<string> of the read request body.
+    */
+    public async Task<string> GetRequestBody(HttpListenerRequest req) {
+        return await ReadRequestBodyAsync(req);
+    }
+
+
+    /* 
+        Sends a string as a response.
+
+        @param res Response object.
+        @param data Response string to be sent.
+    */
+    public async Task Send(HttpListenerResponse res, string data) {
+        await HandleResponse(res, await ParseContentToBytes(data));
+    }
+
     /*
         Starts the server.
     */
@@ -85,11 +106,9 @@ public class AsyncServer {
         HttpListenerRequest req = context.Request;
         HttpListenerResponse res = context.Response;
 
-        string reqBody = await ReadRequestBodyAsync(req);
-
         Console.WriteLine("\n----------------------------------------------------------\n");
         Console.WriteLine($"Request received; Request count: {requestCount}");
-        Console.WriteLine($"Request URL: {req.Url}\nURL Absoulte Path: {req.Url?.AbsolutePath}\nRequest body: {reqBody}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}");
+        Console.WriteLine($"Request URL: {req.Url}\nURL Absoulte Path: {req.Url?.AbsolutePath}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}");
 
         // Sending response:
         string requestAbsoultePath = req.Url?.AbsolutePath ?? "/";
@@ -105,8 +124,17 @@ public class AsyncServer {
             }
         }
 
-        if (!routeLoaded)
+        // If no route was loaded, try loading static files:
+        if (!routeLoaded) {
             await LoadStaticContent(res, requestAbsoultePath, requestHttpMethod);
+        }
+
+        // If there was no response sent yet send a base case response. This should only happen 
+        // when the user doesn't call a method that sends a response automatically like: RenderPage
+        // or when no static files are sent. 
+        if (res.OutputStream.CanWrite) {
+            await HandleResponse(res, await ParseContentToBytes("Base case response..."));
+        }
     }
 
     /*
@@ -156,7 +184,7 @@ public class AsyncServer {
         }
         catch {
             Console.WriteLine("Content not found!");
-            await HandleResponse(res, ParseContentToBytes("404 content not found..."), "text/plain", HttpStatusCode.NotFound);
+            await HandleResponse(res, await ParseContentToBytes("404 content not found..."), "text/plain", HttpStatusCode.NotFound);
         }
     }
 
@@ -176,8 +204,8 @@ public class AsyncServer {
         @param content String that holds the contents.
         @return A UTF8 encoded byte array.
     */
-    private static byte[] ParseContentToBytes(string content) {
-        return System.Text.Encoding.UTF8.GetBytes(content);
+    private static async Task<byte[]> ParseContentToBytes(string content) {
+        return await Task.Run(() => System.Text.Encoding.UTF8.GetBytes(content));
     }
 
     /* 
