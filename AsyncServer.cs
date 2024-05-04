@@ -68,6 +68,7 @@ public class AsyncServer {
         res.ContentLength64 = content.Length;
         await res.OutputStream.WriteAsync(content, 0, content.Length);
         res.OutputStream.Close();
+        res.Close();
     }
 
     /*
@@ -110,7 +111,7 @@ public class AsyncServer {
         string requestHttpMethod = req.HttpMethod;
         bool routeLoaded = false;
 
-        // Searching for the route:
+        // Searching for a route:
         foreach (Route route in routes) {
             if (route.Path == requestAbsoultePath && route.HttpMethod == requestHttpMethod) {
                 await route.OnRoute(new Request(req), new Response(res));

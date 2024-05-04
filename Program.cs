@@ -18,9 +18,10 @@ public class Program {
         server.Route("/fur", "POST", async (Request req, Response res) => {
             string body = await req.GetRequestBody();
             
-            if (body == "1234");
-
-            await res.Send("idk");
+            if (body == "1234")
+                res.Redirect("/rei");
+            else 
+                await res.Send("idk");
         });
 
         await server.StartServerAsync();

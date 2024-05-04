@@ -9,6 +9,12 @@ public class Response {
         this.res = res;
     }
 
+    public void Redirect(string route) {
+        res.StatusCode = (int) HttpStatusCode.Redirect;
+        res.RedirectLocation = route;
+        res.Close();
+    }
+
     /* 
         Sends a string as a response.
 
