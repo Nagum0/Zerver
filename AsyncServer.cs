@@ -6,15 +6,22 @@ public class AsyncServer {
     private string prefix;
     private int requestCount;
     private HashSet<Route> routes;
+    private bool debugMode;
 
     public AsyncServer(string prefix) {
         this.prefix = prefix;
         requestCount = 0;
         routes = new HashSet<Route>();
+        debugMode = false;
     }
 
     public string Prefix {
         get => prefix;
+    }
+
+    public bool DebugMode {
+        get => debugMode;
+        set => debugMode = value;
     }
 
     /* 
@@ -92,9 +99,11 @@ public class AsyncServer {
         HttpListenerRequest req = context.Request;
         HttpListenerResponse res = context.Response;
 
-        Console.WriteLine("\n----------------------------------------------------------\n");
-        Console.WriteLine($"Request received; Request count: {requestCount}");
-        Console.WriteLine($"Request URL: {req.Url}\nURL Absoulte Path: {req.Url?.AbsolutePath}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}");
+        if (debugMode) {
+            Console.WriteLine("\n----------------------------------------------------------\n");
+            Console.WriteLine($"Request received; Request count: {requestCount}");
+            Console.WriteLine($"Request URL: {req.Url}\nURL Absoulte Path: {req.Url?.AbsolutePath}\nHTTP Method: {req.HttpMethod}\nContent-Type: {req.ContentType}\nContent-Length: {req.ContentLength64}\nContent-Encoding{req.ContentEncoding}\nUser-Agent: {req.UserAgent}");
+        }
 
         // Sending response:
         string requestAbsoultePath = req.Url?.AbsolutePath ?? "/";
