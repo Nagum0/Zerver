@@ -1,3 +1,4 @@
-# FATIMA API
+# SIMPLE HTTP SERVER
 
-Beginner friendly and simple async backend framework written in C#
+Simple http server built in C# with the .net framework.
+This was built for educational purposes.
