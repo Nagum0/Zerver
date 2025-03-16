@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = SimpleHTTPServer
-build_property.ProjectDir = /home/zack/Prog/Porn/NetworkStuff/SimpleHTTPServer/
+build_property.ProjectDir = /home/zack/Documents/Code/Zerver/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 

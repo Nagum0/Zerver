@@ -1,9 +1,9 @@
-document.getElementById('ayanamiBtn').addEventListener('click', function() {
-    document.getElementById('girlImg').src = '../static/imgs/rei9.jpg';
-    document.getElementById('girlImg').classList.remove("hidden")
+document.getElementById('catBtn').addEventListener('click', function() {
+    document.getElementById('someImg').src = '../static/imgs/cat.jpg';
+    document.getElementById('someImg').classList.remove("hidden")
 });
 
-document.getElementById('furinaBtn').addEventListener('click', function() {
-    document.getElementById('girlImg').src = '../static/imgs/fur6.jpg';
-    document.getElementById('girlImg').classList.remove("hidden")
+document.getElementById('dogBtn').addEventListener('click', function() {
+    document.getElementById('someImg').src = '../static/imgs/dog.jpg';
+    document.getElementById('someImg').classList.remove("hidden")
 });

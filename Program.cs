@@ -6,15 +6,15 @@ namespace SimpleHTTPServer {
             string prefix = "http://localhost:5000/";
             AsyncServer server = new AsyncServer(prefix);
 
-            server.Route("/rei", "GET", async (HttpListenerRequest req, HttpListenerResponse res) => {
-                await server.RenderPage(req, res, "rei.html");
+            server.Route("/cat", "GET", async (HttpListenerRequest req, HttpListenerResponse res) => {
+                await server.RenderPage(req, res, "cat.html");
             });
 
-            server.Route("/fur", "GET", async (HttpListenerRequest req, HttpListenerResponse res) => {
-                await server.RenderPage(req, res, "fur.html");
+            server.Route("/dog", "GET", async (HttpListenerRequest req, HttpListenerResponse res) => {
+                await server.RenderPage(req, res, "dog.html");
             });
 
-            server.Route("/fur", "POST", async (HttpListenerRequest req, HttpListenerResponse res) => {
+            server.Route("/dog", "POST", async (HttpListenerRequest req, HttpListenerResponse res) => {
                 string body = await server.GetRequestBody(req);
                 Console.WriteLine(body);
                 await server.Send(res, "idk");

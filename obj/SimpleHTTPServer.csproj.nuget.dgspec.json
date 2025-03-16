@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/zack/Prog/Porn/NetworkStuff/SimpleHTTPServer/SimpleHTTPServer.csproj": {}
+    "/home/zack/Documents/Code/Zerver/SimpleHTTPServer.csproj": {}
   },
   "projects": {
-    "/home/zack/Prog/Porn/NetworkStuff/SimpleHTTPServer/SimpleHTTPServer.csproj": {
+    "/home/zack/Documents/Code/Zerver/SimpleHTTPServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/zack/Prog/Porn/NetworkStuff/SimpleHTTPServer/SimpleHTTPServer.csproj",
+        "projectUniqueName": "/home/zack/Documents/Code/Zerver/SimpleHTTPServer.csproj",
         "projectName": "SimpleHTTPServer",
-        "projectPath": "/home/zack/Prog/Porn/NetworkStuff/SimpleHTTPServer/SimpleHTTPServer.csproj",
+        "projectPath": "/home/zack/Documents/Code/Zerver/SimpleHTTPServer.csproj",
         "packagesPath": "/home/zack/.nuget/packages/",
-        "outputPath": "/home/zack/Prog/Porn/NetworkStuff/SimpleHTTPServer/obj/",
+        "outputPath": "/home/zack/Documents/Code/Zerver/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/zack/.nuget/NuGet/NuGet.Config"
@@ -53,7 +53,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.103/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.114/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
